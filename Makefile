@@ -27,9 +27,9 @@ COMPARE_DIR   :=  $(TOOL_DIR)/compare
 MW_VER := 2.0/sp2p3
 
 # Tools
-SKREW_GET := tools/devtools/get_metroskrew.sh
+SKREW_GET := $(TOOL_DIR)/devtools/get_metroskrew.sh
 SKREW_VER := 0.1.3
-SKREW_DIR := tools/metroskrew
+SKREW_DIR := $(TOOL_DIR)/metroskrew
 SKREW_EXE := $(SKREW_DIR)/bin/skrewrap$(EXE)
 SKREW_FLAGS = -wrap:sdk $(MW_VER)
 
