@@ -1,16 +1,19 @@
-ifneq ($(OS),Windows_NT)
-	WINE := wine
+ifeq ($(OS),Windows_NT)
+	EXE := .exe
+else
+	EXE :=
 endif
 
 BUILD_DIR := ./build
 
 $(shell mkdir -p $(BUILD_DIR))
 
-MWCCARM_DIR  ?=  ../mwccarm
-MW_VER       ?=  2.0/sp2p2
+SKREW_DIR    ?=  tools/metroskrew
+MW_VER       ?=  2.0/sp2p3
+SKREW_FLAGS  ?=  -wrap:sdk $(MW_VER)
 
-MWCCARM  :=  $(MWCCARM_DIR)/$(MW_VER)/mwccarm.exe
-MWLDARM  :=  $(MWCCARM_DIR)/$(MW_VER)/mwldarm.exe
+MWCCARM  :=  $(SKREW_DIR)/bin/mwccarm$(EXE) $(SKREW_FLAGS)
+MWLDARM  :=  $(SKREW_DIR)/bin/mwldarm$(EXE) $(SKREW_FLAGS)
 
 ENV_SRC  :=  ./env.c
 ENV_OBJ  :=  $(BUILD_DIR)/env.o
@@ -38,7 +41,7 @@ $(COMPARE_SBIN): $(LIBRARY) $(ENV_OBJ)
 ifeq ($(LIBRARY),)
 	$(error No dsprot.a provided. Specify LIBRARY)
 endif
-	$(WINE) $(MWLDARM) $(LD_PARAM) $(COMPARE_LCF) $^ -o $(LINKED_ELF)
+	$(MWLDARM) $(LD_PARAM) $(COMPARE_LCF) $^ -o $(LINKED_ELF)
 
 $(ENV_OBJ): $(ENV_SRC)
-	$(WINE) $(MWCCARM) $(CC_PARAM) $< -o $@
+	$(MWCCARM) $(CC_PARAM) $< -o $@
