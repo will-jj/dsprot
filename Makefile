@@ -6,10 +6,10 @@ MAKEFLAGS += --no-print-directory
 
 ifeq ($(OS),Windows_NT)
 	EXE  := .exe
-	WINE := 
+	SKREW_SYS := windows
 else
 	EXE  := 
-	WINE := wine
+	SKREW_SYS := linux
 endif
 
 # Relevant directories
@@ -23,14 +23,20 @@ $(shell mkdir -p $(BUILD_DIR))
 ELFCODER_DIR  :=  $(TOOL_DIR)/elfcoder
 FIXDEP_DIR    :=  $(TOOL_DIR)/fixdep
 COMPARE_DIR   :=  $(TOOL_DIR)/compare
-MWCCARM_DIR   ?=  $(TOOL_DIR)/mwccarm
 
 MW_VER := 2.0/sp2p3
 
 # Tools
-MWCCARM   :=  $(MWCCARM_DIR)/$(MW_VER)/mwccarm.exe
-MWASMARM  :=  $(MWCCARM_DIR)/$(MW_VER)/mwasmarm.exe
-MWLDARM   :=  $(MWCCARM_DIR)/$(MW_VER)/mwldarm.exe
+SKREW_GET := tools/devtools/get_metroskrew.sh
+SKREW_VER := 0.1.3
+SKREW_DIR := tools/metroskrew
+SKREW_EXE := $(SKREW_DIR)/bin/skrewrap$(EXE)
+SKREW_FLAGS = -wrap:sdk $(MW_VER)
+
+MWCCARM   :=  $(SKREW_DIR)/bin/mwccarm$(EXE) $(SKREW_FLAGS)
+MWASMARM  :=  $(SKREW_DIR)/bin/mwasmarm$(EXE) $(SKREW_FLAGS)
+MWLDARM   :=  $(SKREW_DIR)/bin/mwldarm$(EXE) $(SKREW_FLAGS)
+
 ELFCODER  :=  $(ELFCODER_DIR)/build/elfcoder$(EXE)
 FIXDEP    :=  $(FIXDEP_DIR)/build/fixdep$(EXE)
 
@@ -76,7 +82,7 @@ KEY_INTEGRITY   := 9785
 KEY_CORE_TESTS  := 0982
 
 
-.PHONY: all compare clean tools dsprot install
+.PHONY: all compare clean tools skrew skrewrm skrewup dsprot install
 .DELETE_ON_ERROR: 
 .NOTPARALLEL: 
 
@@ -93,14 +99,25 @@ clean:
 	$(MAKE) -C $(COMPARE_DIR) clean
 	$(RM) -r $(BUILD_DIR)
 
+skrew: $(SKREW_EXE)
+
+$(SKREW_EXE):
+	SKREW_SYS=$(SKREW_SYS) SKREW_VER=$(SKREW_VER) SKREW_DIR=$(SKREW_DIR) $(SKREW_GET)
+
+skrewrm:
+	rm -rf $(SKREW_DIR)
+
+skrewup: skrewrm skrew
+
 tools:
+	$(MAKE) skrew
 	$(MAKE) -C $(ELFCODER_DIR)
 	$(MAKE) -C $(FIXDEP_DIR)
 
 dsprot:
 	$(MAKE) $(LIBRARY)
 ifneq ($(COMPARE),)
-	$(MAKE) -C $(COMPARE_DIR) MWCCARM_DIR=$(abspath $(MWCCARM_DIR)) MW_VER=$(MW_VER) LIBRARY=$(abspath $(LIBRARY))
+	$(MAKE) -C $(COMPARE_DIR) SKREW_DIR=$(abspath $(SKREW_DIR)) MW_VER=$(MW_VER) LIBRARY=$(abspath $(LIBRARY))
 endif
 
 install:
@@ -115,18 +132,18 @@ endif
 
 # Assembly assembling
 $(BUILD_DIR)/%.o: $(BUILD_DIR)/%.s
-	$(WINE) $(MWASMARM) $(ASM_PARAM) $< -o $@
+	$(MWASMARM) $(ASM_PARAM) $< -o $@
 
 
 # C compilation
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
-	$(WINE) $(MWCCARM) $(CC_PARAM) $(DEP_PARAM) $< -o $@
+	$(MWCCARM) $(CC_PARAM) $(DEP_PARAM) $< -o $@
 	$(FIXDEP) $(@:.o=.d)
 
 
 # Library output
 $(LIBRARY): $(LIBRARY_FILES)
-	$(WINE) $(MWLDARM) $(LIB_PARAM) $^ -o $@
+	$(MWLDARM) $(LIB_PARAM) $^ -o $@
 
 
 # Main module function encoding
