@@ -1,6 +1,6 @@
 project(
     'dsprot',
-    ['c', 'cpp', 'nasm'],
+    ['c', 'nasm'],
     version: '1.0',
     meson_version: '>=1.12.0',
     default_options: ['buildtype=plain', 'warning_level=0'],
@@ -12,7 +12,6 @@ inc_dir_custom = meson.project_source_root() / 'include'
 
 mwccarm = meson.get_compiler('c', native: false).cmd_array()
 mwasmarm = meson.get_compiler('nasm', native: false).cmd_array()
-mwldarm = find_program('c_ld', native: false)
 python = import('python').find_installation()
 
 
@@ -749,10 +748,9 @@ rc4_decoder_obj = custom_target(
 
 ########### library ###########
 
-dsprot = custom_target(
-    'dsprot',
-    output: 'libdsprot.a',
-    input: [
+libdsprot = static_library(
+    'libdsprot',
+    sources: [
         dsprot_main_encrypted,
         dsprot_main_decrypter_encoded,
         dsprot_main_decrypter_decoder_obj,
@@ -772,18 +770,10 @@ dsprot = custom_target(
         rc4_encoded,
         rc4_decoder_obj,
     ],
-    command: [
-        mwldarm,
-        link_args,
-        '@INPUT@',
-        '-o',
-        '@OUTPUT0@',
-    ],
-    build_by_default: true,
+    link_args: link_args,
+    native: false,
 )
 
-dsprot_dep = declare_dependency(
-  sources: dsprot,
-)
+libdsprot_dep = declare_dependency(link_with: libdsprot)
 
-meson.override_dependency('dsprot_lib', dsprot_dep)
+meson.override_dependency('libdsprot', libdsprot_dep)
