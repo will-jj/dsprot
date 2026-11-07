@@ -7,6 +7,59 @@ project(
 )
 
 
+if not meson.is_subproject() and buildtype != 'plain'
+    c_args = [
+        '-O4,p',
+        '-enum',
+        'int',
+        '-proc',
+        'arm946E',
+        '-gccext,on',
+        '-fp',
+        'soft',
+        '-lang',
+        'c99',
+        '-char',
+        'signed',
+        '-inline',
+        'on,noauto',
+        '-Cpp_exceptions',
+        'off',
+        '-interworking',
+        '-c',
+        '-W',
+        'all',
+        '-W',
+        'pedantic',
+        '-W',
+        'noimpl_signedunsigned',
+        '-W',
+        'noimplicitconv',
+        '-W',
+        'nounusedarg',
+        '-W',
+        'nomissingreturn',
+        '-W',
+        'error',
+    ]
+else
+    c_args = []
+endif
+
+mwrap_ver = get_option('mwrap_ver')
+if mwrap_ver != 'default'
+    c_args += ['-wrap:ver', mwrap_ver]
+endif
+
+mwrap_sdk = get_option('mwrap_sdk')
+if mwrap_sdk != 'default'
+    c_args += ['-wrap:sdk', mwrap_sdk]
+endif
+
+add_project_arguments(c_args, language: 'c', native: false)
+
+
+
 subdir('tools')
 
 include_dir = meson.project_source_root() / 'include'
@@ -16,40 +69,7 @@ mwasmarm = meson.get_compiler('nasm', native: false).cmd_array()
 python = import('python').find_installation()
 
 
-c_args = [
-    '-O4,p',
-    '-enum',
-    'int',
-    '-proc',
-    'arm946E',
-    '-gccext,on',
-    '-fp',
-    'soft',
-    '-lang',
-    'c99',
-    '-char',
-    'signed',
-    '-inline',
-    'on,noauto',
-    '-Cpp_exceptions',
-    'off',
-    '-interworking',
-    '-c',
-    '-W',
-    'all',
-    '-W',
-    'pedantic',
-    '-W',
-    'noimpl_signedunsigned',
-    '-W',
-    'noimplicitconv',
-    '-W',
-    'nounusedarg',
-    '-W',
-    'nomissingreturn',
-    '-W',
-    'error',
-]
+
 
 asm_args = [
     '-proc',
