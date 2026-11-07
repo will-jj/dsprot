@@ -7,7 +7,7 @@ incdir = include_directories('include')
 fixdep_exe = executable('fixdep',
     fixdep_sources,
     include_directories : incdir,
-    cpp_args : [
+    c_args : [
         '-O3',
         '-Wno-unused-result',
     ],

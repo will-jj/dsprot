@@ -13,7 +13,7 @@ incdir = include_directories('include')
 elfcoder_exe = executable('elfcoder',
     elfcoder_sources,
     include_directories : incdir,
-    cpp_args : [
+    c_args : [
         '-O3',
         '-Wno-unused-result',
     ],
