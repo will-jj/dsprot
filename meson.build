@@ -10,9 +10,11 @@ subdir('tools')
 incdir = include_directories('include')
 inc_dir_custom = meson.project_source_root() / 'include'
 
-mwccarm = find_program('c', native: false)
-mwasmarm = find_program('nasm', native: false)
+mwccarm = meson.get_compiler('c', native: false).cmd_array()
+mwasmarm = meson.get_compiler('nasm', native: false).cmd_array()
 mwldarm = find_program('c_ld', native: false)
+
+
 
 c_args = [
     '-O4,p',
