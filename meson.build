@@ -34,18 +34,24 @@ include_dir = meson.project_source_root() / 'include'
 ###                    COMPILER FLAGS                    ###
 ############################################################
 c_args = []
+asm_args = []
+link_args = []
 
 mwrap_ver = get_option('mwrap_ver')
 if mwrap_ver != 'default'
     c_args += ['-wrap:ver', mwrap_ver]
+    asm_args += ['-wrap:ver', mwrap_ver]
+    link_args += ['-wrap:ver', mwrap_ver]
 endif
 
 mwrap_sdk = get_option('mwrap_sdk')
 if mwrap_sdk != 'default'
     c_args += ['-wrap:sdk', mwrap_sdk]
+    asm_args += ['-wrap:sdk', mwrap_sdk]
+    link_args += ['-wrap:sdk', mwrap_sdk]
 endif
 
-c_args = [
+c_args += [
     '-O4,p',
     '-enum',
     'int',
@@ -80,12 +86,12 @@ c_args = [
     'error',
 ]
 
-asm_args = [
+asm_args += [
     '-proc',
     'arm5TE',
 ]
 
-link_args = [
+link_args += [
     '-nostdlib',
     '-library',
 ]
