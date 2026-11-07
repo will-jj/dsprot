@@ -781,3 +781,9 @@ dsprot = custom_target(
     ],
     build_by_default: true,
 )
+
+dsprot_dep = declare_dependency(
+  sources: dsprot,
+)
+
+meson.override_dependency('dsprot_lib', dsprot_dep)
