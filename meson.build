@@ -37,13 +37,6 @@ c_args = []
 asm_args = []
 link_args = []
 
-mwrap_ver = get_option('mwrap_ver')
-if mwrap_ver != 'default'
-    c_args += ['-wrap:ver', mwrap_ver]
-    asm_args += ['-wrap:ver', mwrap_ver]
-    link_args += ['-wrap:ver', mwrap_ver]
-endif
-
 mwrap_sdk = get_option('mwrap_sdk')
 if mwrap_sdk != 'default'
     c_args += ['-wrap:sdk', mwrap_sdk]
