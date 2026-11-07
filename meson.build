@@ -13,7 +13,7 @@ inc_dir_custom = meson.project_source_root() / 'include'
 mwccarm = meson.get_compiler('c', native: false).cmd_array()
 mwasmarm = meson.get_compiler('nasm', native: false).cmd_array()
 mwldarm = find_program('c_ld', native: false)
-
+python = import('python').find_installation()
 
 
 c_args = [
@@ -102,7 +102,7 @@ dsprot_main_encrypted = custom_target(
     input: dsprot_main[0],
     output: 'dsprot_main_encrypted.o',
     command: [
-        'python3',
+        python,
         '-c',
         'import shutil,sys; shutil.copyfile(sys.argv[1], sys.argv[2])',
         '@INPUT@',
@@ -155,7 +155,7 @@ dsprot_main_decrypter_encoded = custom_target(
     input: dsprot_main_decrypter_obj,
     output: 'dsprot_main_decrypter_encoded.o',
     command: [
-        'python3',
+        python,
         '-c',
         'import shutil,sys; shutil.copyfile(sys.argv[1], sys.argv[2])',
         '@INPUT@',
@@ -244,7 +244,7 @@ integrity_encrypted = custom_target(
     input: integrity[0],
     output: 'integrity_encrypted.o',
     command: [
-        'python3',
+        python,
         '-c',
         'import shutil,sys; shutil.copyfile(sys.argv[1], sys.argv[2])',
         '@INPUT@',
@@ -293,7 +293,7 @@ integrity_decrypter_encoded = custom_target(
     input: integrity_decrypter_obj,
     output: 'integrity_decrypter_encoded.o',
     command: [
-        'python3',
+        python,
         '-c',
         'import shutil,sys; shutil.copyfile(sys.argv[1], sys.argv[2])',
         '@INPUT@',
@@ -359,7 +359,7 @@ encryptor_encoded = custom_target(
     input: encryptor[0],
     output: 'encryptor_encoded.o',
     command: [
-        'python3',
+        python,
         '-c',
         'import shutil,sys; shutil.copyfile(sys.argv[1], sys.argv[2])',
         '@INPUT@',
@@ -423,7 +423,7 @@ mac_owner_encrypted = custom_target(
     input: mac_owner[0],
     output: 'mac_owner_encrypted.o',
     command: [
-        'python3',
+        python,
         '-c',
         'import shutil,sys; shutil.copyfile(sys.argv[1], sys.argv[2])',
         '@INPUT@',
@@ -470,7 +470,7 @@ mac_owner_decrypter_encoded = custom_target(
     input: mac_owner_decrypter_obj,
     output: 'mac_owner_decrypter_encoded.o',
     command: [
-        'python3',
+        python,
         '-c',
         'import shutil,sys; shutil.copyfile(sys.argv[1], sys.argv[2])',
         '@INPUT@',
@@ -502,7 +502,7 @@ rom_util_encrypted = custom_target(
     input: rom_util[0],
     output: 'rom_util_encrypted.o',
     command: [
-        'python3',
+        python,
         '-c',
         'import shutil,sys; shutil.copyfile(sys.argv[1], sys.argv[2])',
         '@INPUT@',
@@ -549,7 +549,7 @@ rom_util_decrypter_encoded = custom_target(
     input: rom_util_decrypter_obj,
     output: 'rom_util_decrypter_encoded.o',
     command: [
-        'python3',
+        python,
         '-c',
         'import shutil,sys; shutil.copyfile(sys.argv[1], sys.argv[2])',
         '@INPUT@',
@@ -581,7 +581,7 @@ rom_test_encrypted = custom_target(
     input: rom_test[0],
     output: 'rom_test_encrypted.o',
     command: [
-        'python3',
+        python,
         '-c',
         'import shutil,sys; shutil.copyfile(sys.argv[1], sys.argv[2])',
         '@INPUT@',
@@ -628,7 +628,7 @@ rom_test_decrypter_encoded = custom_target(
     input: rom_test_decrypter_obj,
     output: 'rom_test_decrypter_encoded.o',
     command: [
-        'python3',
+        python,
         '-c',
         'import shutil,sys; shutil.copyfile(sys.argv[1], sys.argv[2])',
         '@INPUT@',
@@ -702,7 +702,7 @@ rc4_encoded = custom_target(
     input: rc4[0],
     output: 'rc4_encoded.o',
     command: [
-        'python3',
+        python,
         '-c',
         'import shutil,sys; shutil.copyfile(sys.argv[1], sys.argv[2])',
         '@INPUT@',
