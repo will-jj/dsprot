@@ -5,10 +5,11 @@ project(
     meson_version: '>=1.12.0',
     default_options: ['buildtype=plain', 'warning_level=0'],
 )
+
+
 subdir('tools')
 
-incdir = include_directories('include')
-inc_dir_custom = meson.project_source_root() / 'include'
+include_dir = meson.project_source_root() / 'include'
 
 mwccarm = meson.get_compiler('c', native: false).cmd_array()
 mwasmarm = meson.get_compiler('nasm', native: false).cmd_array()
@@ -60,6 +61,11 @@ link_args = [
     '-library',
 ]
 
+dep_args = [
+    '-gccdep',
+    '-MD',
+]
+
 key_dsprot_main = '6AB2'
 key_integrity = '9785'
 key_core_tests = '0982'
@@ -73,29 +79,14 @@ dsprot_main = custom_target(
         mwccarm,
         c_args,
         '-i',
-        inc_dir_custom,
-        '-gccdep',
-        '-MD',
+        include_dir,
+        dep_args,
         '@INPUT@',
         '-o',
         '@OUTPUT0@',
     ],
 )
 
-# This is hacky as the file is actually written over and output is not used
-#my_ds_proc_fd = custom_target('dsprot_main_fd',
-#  output : 'dsprot_main.fix.d',
-#  input  : ds_proc[1],
-#  command : [fixdep_exe, '@INPUT@'],
-#  build_by_default : true,
-#)
-
-location = 'dsprot_main' + '_encrypted.o'
-
-# this causes a warning of hard error
-#copy = fs.copyfile(dsprot_main[0].full_path(), location)
-
-# this seems cursed
 dsprot_main_encrypted = custom_target(
     'dsprot_main_encrypted',
     input: dsprot_main[0],
@@ -142,7 +133,7 @@ dsprot_main_decrypter_obj = custom_target(
         mwasmarm,
         asm_args,
         '-i',
-        inc_dir_custom,
+        include_dir,
         '@INPUT@',
         '-o',
         '@OUTPUT0@',
@@ -193,7 +184,7 @@ dsprot_main_decrypter_decoder_obj = custom_target(
         mwasmarm,
         asm_args,
         '-i',
-        inc_dir_custom,
+        include_dir,
         '@INPUT@',
         '-o',
         '@OUTPUT0@',
@@ -210,9 +201,8 @@ extra = custom_target(
         mwccarm,
         c_args,
         '-i',
-        inc_dir_custom,
-        '-gccdep',
-        '-MD',
+        include_dir,
+        dep_args,
         '@INPUT@',
         '-o',
         '@OUTPUT0@',
@@ -229,9 +219,8 @@ integrity = custom_target(
         mwccarm,
         c_args,
         '-i',
-        inc_dir_custom,
-        '-gccdep',
-        '-MD',
+        include_dir,
+        dep_args,
         '@INPUT@',
         '-o',
         '@OUTPUT0@',
@@ -280,7 +269,7 @@ integrity_decrypter_obj = custom_target(
         mwasmarm,
         asm_args,
         '-i',
-        inc_dir_custom,
+        include_dir,
         '@INPUT@',
         '-o',
         '@OUTPUT0@',
@@ -327,7 +316,7 @@ integrity_decrypter_decoder_obj = custom_target(
         mwasmarm,
         asm_args,
         '-i',
-        inc_dir_custom,
+        include_dir,
         '@INPUT@',
         '-o',
         '@OUTPUT0@',
@@ -344,9 +333,8 @@ encryptor = custom_target(
         mwccarm,
         c_args,
         '-i',
-        inc_dir_custom,
-        '-gccdep',
-        '-MD',
+        include_dir,
+        dep_args,
         '@INPUT@',
         '-o',
         '@OUTPUT0@',
@@ -391,7 +379,7 @@ encryptor_decoder_obj = custom_target(
         mwasmarm,
         asm_args,
         '-i',
-        inc_dir_custom,
+        include_dir,
         '@INPUT@',
         '-o',
         '@OUTPUT0@',
@@ -408,9 +396,8 @@ mac_owner = custom_target(
         mwccarm,
         c_args,
         '-i',
-        inc_dir_custom,
-        '-gccdep',
-        '-MD',
+        include_dir,
+        dep_args,
         '@INPUT@',
         '-o',
         '@OUTPUT0@',
@@ -457,7 +444,7 @@ mac_owner_decrypter_obj = custom_target(
         mwasmarm,
         asm_args,
         '-i',
-        inc_dir_custom,
+        include_dir,
         '@INPUT@',
         '-o',
         '@OUTPUT0@',
@@ -487,9 +474,8 @@ rom_util = custom_target(
         mwccarm,
         c_args,
         '-i',
-        inc_dir_custom,
-        '-gccdep',
-        '-MD',
+        include_dir,
+        dep_args,
         '@INPUT@',
         '-o',
         '@OUTPUT0@',
@@ -536,7 +522,7 @@ rom_util_decrypter_obj = custom_target(
         mwasmarm,
         asm_args,
         '-i',
-        inc_dir_custom,
+        include_dir,
         '@INPUT@',
         '-o',
         '@OUTPUT0@',
@@ -566,9 +552,8 @@ rom_test = custom_target(
         mwccarm,
         c_args,
         '-i',
-        inc_dir_custom,
-        '-gccdep',
-        '-MD',
+        include_dir,
+        dep_args,
         '@INPUT@',
         '-o',
         '@OUTPUT0@',
@@ -615,7 +600,7 @@ rom_test_decrypter_obj = custom_target(
         mwasmarm,
         asm_args,
         '-i',
-        inc_dir_custom,
+        include_dir,
         '@INPUT@',
         '-o',
         '@OUTPUT0@',
@@ -670,7 +655,7 @@ coretests_decrypter_decoder_obj = custom_target(
         mwasmarm,
         asm_args,
         '-i',
-        inc_dir_custom,
+        include_dir,
         '@INPUT@',
         '-o',
         '@OUTPUT0@',
@@ -687,9 +672,8 @@ rc4 = custom_target(
         mwccarm,
         c_args,
         '-i',
-        inc_dir_custom,
-        '-gccdep',
-        '-MD',
+        include_dir,
+        dep_args,
         '@INPUT@',
         '-o',
         '@OUTPUT0@',
@@ -739,7 +723,7 @@ rc4_decoder_obj = custom_target(
         mwasmarm,
         asm_args,
         '-i',
-        inc_dir_custom,
+        include_dir,
         '@INPUT@',
         '-o',
         '@OUTPUT0@',
