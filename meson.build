@@ -79,7 +79,6 @@ dsprot_main = custom_target(
         '-o',
         '@OUTPUT0@',
     ],
-    build_by_default: true,
 )
 
 # This is hacky as the file is actually written over and output is not used
@@ -132,7 +131,6 @@ dsprot_main_decrypter = custom_target(
         'DetectDummy',
         'DetectNotDummy',
     ],
-    build_by_default: true,
 )
 
 dsprot_main_decrypter_obj = custom_target(
@@ -148,7 +146,6 @@ dsprot_main_decrypter_obj = custom_target(
         '-o',
         '@OUTPUT0@',
     ],
-    build_by_default: true,
 )
 
 dsprot_main_decrypter_encoded = custom_target(
@@ -185,7 +182,6 @@ dsprot_main_decrypter_decoder = custom_target(
         'DSProt_DetectDummy',
         'DSProt_DetectNotDummy',
     ],
-    build_by_default: true,
 )
 
 dsprot_main_decrypter_decoder_obj = custom_target(
@@ -201,7 +197,6 @@ dsprot_main_decrypter_decoder_obj = custom_target(
         '-o',
         '@OUTPUT0@',
     ],
-    build_by_default: true,
 )
 
 ########### extra ###########
@@ -221,7 +216,6 @@ extra = custom_target(
         '-o',
         '@OUTPUT0@',
     ],
-    build_by_default: true,
 )
 
 ########### integrity ###########
@@ -241,7 +235,6 @@ integrity = custom_target(
         '-o',
         '@OUTPUT0@',
     ],
-    build_by_default: true,
 )
 
 integrity_encrypted = custom_target(
@@ -276,7 +269,6 @@ integrity_decrypter = custom_target(
         'Integrity_ROMTest_IsBad',
         'Integrity_ROMTest_IsGood',
     ],
-    build_by_default: true,
 )
 
 integrity_decrypter_obj = custom_target(
@@ -292,7 +284,6 @@ integrity_decrypter_obj = custom_target(
         '-o',
         '@OUTPUT0@',
     ],
-    build_by_default: true,
 )
 
 integrity_decrypter_encoded = custom_target(
@@ -325,7 +316,6 @@ integrity_decrypter_decoder = custom_target(
         'RunEncrypted_Integrity_ROMTest_IsBad',
         'RunEncrypted_Integrity_ROMTest_IsGood',
     ],
-    build_by_default: true,
 )
 
 integrity_decrypter_decoder_obj = custom_target(
@@ -341,7 +331,6 @@ integrity_decrypter_decoder_obj = custom_target(
         '-o',
         '@OUTPUT0@',
     ],
-    build_by_default: true,
 )
 
 ########### encryptor ###########
@@ -361,7 +350,6 @@ encryptor = custom_target(
         '-o',
         '@OUTPUT0@',
     ],
-    build_by_default: true,
 )
 
 encryptor_encoded = custom_target(
@@ -392,7 +380,6 @@ encryptor_decoder = custom_target(
         'Encryptor_EncryptFunction',
         'Encryptor_DecryptFunction',
     ],
-    build_by_default: true,
 )
 
 encryptor_decoder_obj = custom_target(
@@ -408,7 +395,6 @@ encryptor_decoder_obj = custom_target(
         '-o',
         '@OUTPUT0@',
     ],
-    build_by_default: true,
 )
 
 ########### mac_owner ###########
@@ -428,7 +414,6 @@ mac_owner = custom_target(
         '-o',
         '@OUTPUT0@',
     ],
-    build_by_default: true,
 )
 
 mac_owner_encrypted = custom_target(
@@ -461,7 +446,6 @@ mac_owner_decrypter = custom_target(
         'MACOwner_IsBad',
         'MACOwner_IsGood',
     ],
-    build_by_default: true,
 )
 
 mac_owner_decrypter_obj = custom_target(
@@ -477,7 +461,6 @@ mac_owner_decrypter_obj = custom_target(
         '-o',
         '@OUTPUT0@',
     ],
-    build_by_default: true,
 )
 
 mac_owner_decrypter_encoded = custom_target(
@@ -510,7 +493,6 @@ rom_util = custom_target(
         '-o',
         '@OUTPUT0@',
     ],
-    build_by_default: true,
 )
 
 rom_util_encrypted = custom_target(
@@ -543,7 +525,6 @@ rom_util_decrypter = custom_target(
         'ROMUtil_Read',
         'ROMUtil_CRC32',
     ],
-    build_by_default: true,
 )
 
 rom_util_decrypter_obj = custom_target(
@@ -559,7 +540,6 @@ rom_util_decrypter_obj = custom_target(
         '-o',
         '@OUTPUT0@',
     ],
-    build_by_default: true,
 )
 
 rom_util_decrypter_encoded = custom_target(
@@ -592,7 +572,6 @@ rom_test = custom_target(
         '-o',
         '@OUTPUT0@',
     ],
-    build_by_default: true,
 )
 
 rom_test_encrypted = custom_target(
@@ -625,7 +604,6 @@ rom_test_decrypter = custom_target(
         'ROMTest_IsBad',
         'ROMTest_IsGood',
     ],
-    build_by_default: true,
 )
 
 rom_test_decrypter_obj = custom_target(
@@ -641,7 +619,6 @@ rom_test_decrypter_obj = custom_target(
         '-o',
         '@OUTPUT0@',
     ],
-    build_by_default: true,
 )
 
 rom_test_decrypter_encoded = custom_target(
@@ -682,7 +659,6 @@ coretests_decrypter_decoder = custom_target(
         'RunEncrypted_ROMUtil_Read',
         'RunEncrypted_ROMUtil_CRC32',
     ],
-    build_by_default: true,
 )
 
 coretests_decrypter_decoder_obj = custom_target(
@@ -698,7 +674,6 @@ coretests_decrypter_decoder_obj = custom_target(
         '-o',
         '@OUTPUT0@',
     ],
-    build_by_default: true,
 )
 
 ########### rc4 ###########
@@ -718,7 +693,6 @@ rc4 = custom_target(
         '-o',
         '@OUTPUT0@',
     ],
-    build_by_default: true,
 )
 
 rc4_encoded = custom_target(
@@ -754,7 +728,6 @@ rc4_decoder = custom_target(
         'RC4_InitAndEncryptInstructions',
         'RC4_InitAndDecryptInstructions',
     ],
-    build_by_default: true,
 )
 
 rc4_decoder_obj = custom_target(
@@ -770,7 +743,6 @@ rc4_decoder_obj = custom_target(
         '-o',
         '@OUTPUT0@',
     ],
-    build_by_default: true,
 )
 
 ########### library ###########
