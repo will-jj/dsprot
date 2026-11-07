@@ -7,6 +7,32 @@ project(
 )
 
 
+############################################################
+###                         TOOLS                        ###
+############################################################
+subdir('tools')
+
+############################################################
+###                         COMPILERS                    ###
+############################################################
+mwccarm = meson.get_compiler('c', native: false).cmd_array()
+mwasmarm = meson.get_compiler('nasm', native: false).cmd_array()
+
+############################################################
+###                         PROGRAMS                     ###
+############################################################
+python = import('python').find_installation()
+
+
+############################################################
+###                    INCLUDE PATHS                     ###
+############################################################
+include_dir = meson.project_source_root() / 'include'
+
+
+############################################################
+###                    COMPILER FLAGS                    ###
+############################################################
 c_args = []
 
 mwrap_ver = get_option('mwrap_ver')
@@ -54,14 +80,6 @@ c_args = [
     'error',
 ]
 
-subdir('tools')
-
-include_dir = meson.project_source_root() / 'include'
-
-mwccarm = meson.get_compiler('c', native: false).cmd_array()
-mwasmarm = meson.get_compiler('nasm', native: false).cmd_array()
-python = import('python').find_installation()
-
 asm_args = [
     '-proc',
     'arm5TE',
@@ -77,11 +95,17 @@ dep_args = [
     '-MD',
 ]
 
+############################################################
+###                       KEYS                           ###
+############################################################
 key_dsprot_main = '6AB2'
 key_integrity = '9785'
 key_core_tests = '0982'
 
 
+############################################################
+###                       DSPROT MAIN                    ###
+############################################################
 dsprot_main = custom_target(
     'dsprot_main',
     output: ['dsprot_main.o', 'dsprot_main.d'],
@@ -202,8 +226,9 @@ dsprot_main_decrypter_decoder_obj = custom_target(
     ],
 )
 
-########### extra ###########
-
+############################################################
+###                       EXTRA                          ###
+############################################################
 extra = custom_target(
     'extra',
     output: ['extra.o', 'extra.d'],
@@ -220,8 +245,9 @@ extra = custom_target(
     ],
 )
 
-########### integrity ###########
-
+############################################################
+###                       INTEGRITY                      ###
+############################################################
 integrity = custom_target(
     'integrity',
     output: ['integrity.o', 'integrity.d'],
@@ -334,8 +360,9 @@ integrity_decrypter_decoder_obj = custom_target(
     ],
 )
 
-########### encryptor ###########
-
+############################################################
+###                       ENCRYPTOR                      ###
+############################################################
 encryptor = custom_target(
     'encryptor',
     output: ['encryptor.o', 'encryptor.d'],
@@ -397,8 +424,9 @@ encryptor_decoder_obj = custom_target(
     ],
 )
 
-########### mac_owner ###########
-
+############################################################
+###                       MAC OWNER                      ###
+############################################################
 mac_owner = custom_target(
     'mac_owner',
     output: ['mac_owner.o', 'mac_owner.d'],
@@ -475,8 +503,9 @@ mac_owner_decrypter_encoded = custom_target(
     ],
 )
 
-########### rom_util ###########
-
+############################################################
+###                       ROM UTIL                       ###
+############################################################
 rom_util = custom_target(
     'rom_util',
     output: ['rom_util.o', 'rom_util.d'],
@@ -553,8 +582,9 @@ rom_util_decrypter_encoded = custom_target(
     ],
 )
 
-########### rom_test ###########
-
+############################################################
+###                       ROM TEST                       ###
+############################################################
 rom_test = custom_target(
     'rom_test',
     output: ['rom_test.o', 'rom_test.d'],
@@ -631,8 +661,10 @@ rom_test_decrypter_encoded = custom_target(
     ],
 )
 
-########### coretests ###########
 
+############################################################
+###                       CORETESTS                      ###
+############################################################
 coretests_decrypter_decoder = custom_target(
     'coretests_decrypter_decoder',
     output: 'coretests_decrypter_decoder.s',
@@ -673,8 +705,9 @@ coretests_decrypter_decoder_obj = custom_target(
     ],
 )
 
-########### rc4 ###########
-
+############################################################
+###                       RC4                            ###
+############################################################
 rc4 = custom_target(
     'rc4',
     output: ['rc4.o', 'rc4.d'],
@@ -741,8 +774,9 @@ rc4_decoder_obj = custom_target(
     ],
 )
 
-########### library ###########
-
+############################################################
+###                       LIBRARY                        ###
+############################################################
 dsprot = static_library(
     'dsprot',
     sources: [
@@ -769,6 +803,9 @@ dsprot = static_library(
     native: false,
 )
 
+############################################################
+###                    FOR CONSUMERS                     ###
+############################################################
 libdsprot_dep = declare_dependency(link_with: dsprot)
 
 meson.override_dependency('libdsprot', libdsprot_dep)
