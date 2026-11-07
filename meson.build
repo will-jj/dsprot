@@ -1,7 +1,7 @@
 project(
     'dsprot',
     ['c', 'nasm'],
-    version: '1.0',
+    version: '1.23',
     meson_version: '>=1.12.0',
     default_options: ['buildtype=plain', 'warning_level=0'],
 )
