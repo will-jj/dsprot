@@ -752,7 +752,7 @@ dsprot = custom_target(
     output: 'dsprot.a',
     input: [
         dsprot_main_encrypted,
-        dsprot_main_decrypter_decoder_obj,
+        dsprot_main_decrypter_encoded,
         dsprot_main_decrypter_decoder_obj,
         extra[0],
         integrity_encrypted,
