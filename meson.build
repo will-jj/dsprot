@@ -751,7 +751,7 @@ rc4_decoder_obj = custom_target(
 
 dsprot = custom_target(
     'dsprot',
-    output: 'dsprot.a',
+    output: 'libdsprot.a',
     input: [
         dsprot_main_encrypted,
         dsprot_main_decrypter_encoded,
