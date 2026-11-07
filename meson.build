@@ -732,8 +732,8 @@ rc4_decoder_obj = custom_target(
 
 ########### library ###########
 
-libdsprot = static_library(
-    'libdsprot',
+dsprot = static_library(
+    'dsprot',
     sources: [
         dsprot_main_encrypted,
         dsprot_main_decrypter_encoded,
@@ -758,6 +758,6 @@ libdsprot = static_library(
     native: false,
 )
 
-libdsprot_dep = declare_dependency(link_with: libdsprot)
+libdsprot_dep = declare_dependency(link_with: dsprot)
 
 meson.override_dependency('libdsprot', libdsprot_dep)
