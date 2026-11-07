@@ -1,5 +1,5 @@
 **/build/**
-tools/metroskrew/**
+tools/mwccarm/**
 *.exe
 *.dll
 *.o
