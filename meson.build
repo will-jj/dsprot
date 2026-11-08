@@ -107,7 +107,8 @@ key_core_tests = '0982'
 ############################################################
 dsprot_main = custom_target(
     'dsprot_main',
-    output: ['dsprot_main.o', 'dsprot_main.d'],
+    output: 'dsprot_main.o',
+    depfile: '@BASENAME@.d',
     input: 'src/dsprot_main.c',
     command: [
         mwccarm,
@@ -117,13 +118,13 @@ dsprot_main = custom_target(
         dep_args,
         '@INPUT@',
         '-o',
-        '@OUTPUT0@',
+        '@OUTPUT@',
     ],
 )
 
 dsprot_main_encrypted = custom_target(
     'dsprot_main_encrypted',
-    input: dsprot_main[0],
+    input: dsprot_main,
     output: 'dsprot_main_encrypted.o',
     command: [
         python,
@@ -144,7 +145,7 @@ dsprot_main_decrypter = custom_target(
         '-i',
         '@INPUT@',
         '-o',
-        '@OUTPUT0@',
+        '@OUTPUT@',
         '-k',
         key_dsprot_main,
         '-p',
@@ -170,7 +171,7 @@ dsprot_main_decrypter_obj = custom_target(
         include_dir,
         '@INPUT@',
         '-o',
-        '@OUTPUT0@',
+        '@OUTPUT@',
     ],
 )
 
@@ -197,7 +198,7 @@ dsprot_main_decrypter_decoder = custom_target(
         '-i',
         '@INPUT@',
         '-o',
-        '@OUTPUT0@',
+        '@OUTPUT@',
         '-g',
         'Garbage',
         '-f',
@@ -221,7 +222,7 @@ dsprot_main_decrypter_decoder_obj = custom_target(
         include_dir,
         '@INPUT@',
         '-o',
-        '@OUTPUT0@',
+        '@OUTPUT@',
     ],
 )
 
@@ -230,7 +231,8 @@ dsprot_main_decrypter_decoder_obj = custom_target(
 ############################################################
 extra = custom_target(
     'extra',
-    output: ['extra.o', 'extra.d'],
+    output: 'extra.o',
+    depfile: '@BASENAME@.d',
     input: 'src/extra.c',
     command: [
         mwccarm,
@@ -240,7 +242,7 @@ extra = custom_target(
         dep_args,
         '@INPUT@',
         '-o',
-        '@OUTPUT0@',
+        '@OUTPUT@',
     ],
 )
 
@@ -249,7 +251,8 @@ extra = custom_target(
 ############################################################
 integrity = custom_target(
     'integrity',
-    output: ['integrity.o', 'integrity.d'],
+    output: 'integrity.o',
+    depfile: '@BASENAME@.d',
     input: 'src/integrity.c',
     command: [
         mwccarm,
@@ -259,13 +262,13 @@ integrity = custom_target(
         dep_args,
         '@INPUT@',
         '-o',
-        '@OUTPUT0@',
+        '@OUTPUT@',
     ],
 )
 
 integrity_encrypted = custom_target(
     'integrity_encrypted',
-    input: integrity[0],
+    input: integrity,
     output: 'integrity_encrypted.o',
     command: [
         python,
@@ -286,7 +289,7 @@ integrity_decrypter = custom_target(
         '-i',
         '@INPUT@',
         '-o',
-        '@OUTPUT0@',
+        '@OUTPUT@',
         '-k',
         key_integrity,
         '-f',
@@ -308,7 +311,7 @@ integrity_decrypter_obj = custom_target(
         include_dir,
         '@INPUT@',
         '-o',
-        '@OUTPUT0@',
+        '@OUTPUT@',
     ],
 )
 
@@ -335,7 +338,7 @@ integrity_decrypter_decoder = custom_target(
         '-i',
         '@INPUT@',
         '-o',
-        '@OUTPUT0@',
+        '@OUTPUT@',
         '-f',
         'RunEncrypted_Integrity_MACOwner_IsBad',
         'RunEncrypted_Integrity_MACOwner_IsGood',
@@ -355,7 +358,7 @@ integrity_decrypter_decoder_obj = custom_target(
         include_dir,
         '@INPUT@',
         '-o',
-        '@OUTPUT0@',
+        '@OUTPUT@',
     ],
 )
 
@@ -364,7 +367,8 @@ integrity_decrypter_decoder_obj = custom_target(
 ############################################################
 encryptor = custom_target(
     'encryptor',
-    output: ['encryptor.o', 'encryptor.d'],
+    output: 'encryptor.o',
+    depfile: '@BASENAME@.d',
     input: 'src/encryptor.c',
     command: [
         mwccarm,
@@ -374,13 +378,13 @@ encryptor = custom_target(
         dep_args,
         '@INPUT@',
         '-o',
-        '@OUTPUT0@',
+        '@OUTPUT@',
     ],
 )
 
 encryptor_encoded = custom_target(
     'encryptor_encoded',
-    input: encryptor[0],
+    input: encryptor,
     output: 'encryptor_encoded.o',
     command: [
         python,
@@ -401,7 +405,7 @@ encryptor_decoder = custom_target(
         '-i',
         '@INPUT@',
         '-o',
-        '@OUTPUT0@',
+        '@OUTPUT@',
         '-f',
         'Encryptor_EncryptFunction',
         'Encryptor_DecryptFunction',
@@ -419,7 +423,7 @@ encryptor_decoder_obj = custom_target(
         include_dir,
         '@INPUT@',
         '-o',
-        '@OUTPUT0@',
+        '@OUTPUT@',
     ],
 )
 
@@ -428,7 +432,8 @@ encryptor_decoder_obj = custom_target(
 ############################################################
 mac_owner = custom_target(
     'mac_owner',
-    output: ['mac_owner.o', 'mac_owner.d'],
+    output: 'mac_owner.o',
+    depfile: '@BASENAME@.d',
     input: 'src/mac_owner.c',
     command: [
         mwccarm,
@@ -438,13 +443,13 @@ mac_owner = custom_target(
         dep_args,
         '@INPUT@',
         '-o',
-        '@OUTPUT0@',
+        '@OUTPUT@',
     ],
 )
 
 mac_owner_encrypted = custom_target(
     'mac_owner_encrypted',
-    input: mac_owner[0],
+    input: mac_owner,
     output: 'mac_owner_encrypted.o',
     command: [
         python,
@@ -465,7 +470,7 @@ mac_owner_decrypter = custom_target(
         '-i',
         '@INPUT@',
         '-o',
-        '@OUTPUT0@',
+        '@OUTPUT@',
         '-k',
         key_core_tests,
         '-f',
@@ -485,7 +490,7 @@ mac_owner_decrypter_obj = custom_target(
         include_dir,
         '@INPUT@',
         '-o',
-        '@OUTPUT0@',
+        '@OUTPUT@',
     ],
 )
 
@@ -507,7 +512,8 @@ mac_owner_decrypter_encoded = custom_target(
 ############################################################
 rom_util = custom_target(
     'rom_util',
-    output: ['rom_util.o', 'rom_util.d'],
+    output: 'rom_util.o',
+    depfile: '@BASENAME@.d',
     input: 'src/rom_util.c',
     command: [
         mwccarm,
@@ -517,13 +523,13 @@ rom_util = custom_target(
         dep_args,
         '@INPUT@',
         '-o',
-        '@OUTPUT0@',
+        '@OUTPUT@',
     ],
 )
 
 rom_util_encrypted = custom_target(
     'rom_util_encrypted',
-    input: rom_util[0],
+    input: rom_util,
     output: 'rom_util_encrypted.o',
     command: [
         python,
@@ -544,7 +550,7 @@ rom_util_decrypter = custom_target(
         '-i',
         '@INPUT@',
         '-o',
-        '@OUTPUT0@',
+        '@OUTPUT@',
         '-k',
         key_core_tests,
         '-f',
@@ -564,7 +570,7 @@ rom_util_decrypter_obj = custom_target(
         include_dir,
         '@INPUT@',
         '-o',
-        '@OUTPUT0@',
+        '@OUTPUT@',
     ],
 )
 
@@ -586,7 +592,8 @@ rom_util_decrypter_encoded = custom_target(
 ############################################################
 rom_test = custom_target(
     'rom_test',
-    output: ['rom_test.o', 'rom_test.d'],
+    output: 'rom_test.o',
+    depfile: '@BASENAME@.d',
     input: 'src/rom_test.c',
     command: [
         mwccarm,
@@ -596,13 +603,13 @@ rom_test = custom_target(
         dep_args,
         '@INPUT@',
         '-o',
-        '@OUTPUT0@',
+        '@OUTPUT@',
     ],
 )
 
 rom_test_encrypted = custom_target(
     'rom_test_obj_copy',
-    input: rom_test[0],
+    input: rom_test,
     output: 'rom_test_encrypted.o',
     command: [
         python,
@@ -623,7 +630,7 @@ rom_test_decrypter = custom_target(
         '-i',
         '@INPUT@',
         '-o',
-        '@OUTPUT0@',
+        '@OUTPUT@',
         '-k',
         key_core_tests,
         '-f',
@@ -643,7 +650,7 @@ rom_test_decrypter_obj = custom_target(
         include_dir,
         '@INPUT@',
         '-o',
-        '@OUTPUT0@',
+        '@OUTPUT@',
     ],
 )
 
@@ -678,7 +685,7 @@ coretests_decrypter_decoder = custom_target(
         '-i',
         '@INPUT@',
         '-o',
-        '@OUTPUT0@',
+        '@OUTPUT@',
         '-f',
         'RunEncrypted_ROMTest_IsBad',
         'RunEncrypted_ROMTest_IsGood',
@@ -700,7 +707,7 @@ coretests_decrypter_decoder_obj = custom_target(
         include_dir,
         '@INPUT@',
         '-o',
-        '@OUTPUT0@',
+        '@OUTPUT@',
     ],
 )
 
@@ -709,7 +716,8 @@ coretests_decrypter_decoder_obj = custom_target(
 ############################################################
 rc4 = custom_target(
     'rc4',
-    output: ['rc4.o', 'rc4.d'],
+    output: 'rc4.o',
+    depfile: '@BASENAME@.d',
     input: 'src/rc4.c',
     command: [
         mwccarm,
@@ -719,13 +727,13 @@ rc4 = custom_target(
         dep_args,
         '@INPUT@',
         '-o',
-        '@OUTPUT0@',
+        '@OUTPUT@',
     ],
 )
 
 rc4_encoded = custom_target(
     'rc4_encoded',
-    input: rc4[0],
+    input: rc4,
     output: 'rc4_encoded.o',
     command: [
         python,
@@ -746,7 +754,7 @@ rc4_decoder = custom_target(
         '-i',
         '@INPUT@',
         '-o',
-        '@OUTPUT0@',
+        '@OUTPUT@',
         '-f',
         'RC4_Init',
         'RC4_Byte',
@@ -769,7 +777,7 @@ rc4_decoder_obj = custom_target(
         include_dir,
         '@INPUT@',
         '-o',
-        '@OUTPUT0@',
+        '@OUTPUT@',
     ],
 )
 
@@ -782,7 +790,7 @@ dsprot = static_library(
         dsprot_main_encrypted,
         dsprot_main_decrypter_encoded,
         dsprot_main_decrypter_decoder_obj,
-        extra[0],
+        extra,
         integrity_encrypted,
         integrity_decrypter_encoded,
         integrity_decrypter_decoder_obj,
