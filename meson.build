@@ -29,13 +29,11 @@ include_dir = meson.project_source_root() / 'include'
 ############################################################
 c_args = []
 asm_args = []
-link_args = []
 
 mwrap_sdk = get_option('mwrap_sdk')
 if mwrap_sdk != 'default'
     c_args += ['-wrap:sdk', mwrap_sdk]
     asm_args += ['-wrap:sdk', mwrap_sdk]
-    link_args += ['-wrap:sdk', mwrap_sdk]
 endif
 
 c_args += [
@@ -76,11 +74,6 @@ c_args += [
 asm_args += [
     '-proc',
     'arm5TE',
-]
-
-link_args += [
-    '-nostdlib',
-    '-library',
 ]
 
 dep_args = [
@@ -776,7 +769,6 @@ dsprot = static_library(
         rc4_encoded,
         rc4_decoder_obj,
     ],
-    link_args: link_args,
     native: false,
 )
 
