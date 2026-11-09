@@ -88,6 +88,79 @@ key_dsprot_main = '6AB2'
 key_integrity = '9785'
 key_core_tests = '0982'
 
+############################################################
+###                       ENCODED FUNCTIONS              ###
+############################################################
+dsprot_main_decrypter_functions = [
+    'DetectFlashcart',
+    'DetectNotFlashcart',
+    'DetectEmulator',
+    'DetectNotEmulator',
+    'DetectDummy',
+    'DetectNotDummy',
+]
+
+dsprot_main_decrypter_decoder_functions = [
+    'DSProt_DetectFlashcart',
+    'DSProt_DetectNotFlashcart',
+    'DSProt_DetectEmulator',
+    'DSProt_DetectNotEmulator',
+    'DSProt_DetectDummy',
+    'DSProt_DetectNotDummy',
+]
+
+integrity_decrypter_functions = [
+    'Integrity_MACOwner_IsBad',
+    'Integrity_MACOwner_IsGood',
+    'Integrity_ROMTest_IsBad',
+    'Integrity_ROMTest_IsGood',
+]
+
+integrity_decrypter_decoder_functions = [
+    'RunEncrypted_Integrity_MACOwner_IsBad',
+    'RunEncrypted_Integrity_MACOwner_IsGood',
+    'RunEncrypted_Integrity_ROMTest_IsBad',
+    'RunEncrypted_Integrity_ROMTest_IsGood',
+]
+
+encryptor_decoder_functions = [
+    'Encryptor_EncryptFunction',
+    'Encryptor_DecryptFunction',
+]
+
+mac_owner_decrypter_functions = [
+    'MACOwner_IsBad',
+    'MACOwner_IsGood',
+]
+
+rom_util_decrypter_functions = [
+    'ROMUtil_Read',
+    'ROMUtil_CRC32',
+]
+
+rom_test_functions = [
+    'ROMTest_IsBad',
+    'ROMTest_IsGood',
+]
+
+coretests_decrypter_decoder_functions = [
+    'RunEncrypted_ROMTest_IsBad',
+    'RunEncrypted_ROMTest_IsGood',
+    'RunEncrypted_MACOwner_IsBad',
+    'RunEncrypted_MACOwner_IsGood',
+    'RunEncrypted_ROMUtil_Read',
+    'RunEncrypted_ROMUtil_CRC32',
+]
+
+rc4_decoder_functions = [
+    'RC4_Init',
+    'RC4_Byte',
+    'RC4_InitSBox',
+    'RC4_EncryptInstructions',
+    'RC4_DecryptInstructions',
+    'RC4_InitAndEncryptInstructions',
+    'RC4_InitAndDecryptInstructions',
+]
 
 ############################################################
 ###                       DSPROT MAIN                    ###
@@ -136,12 +209,7 @@ dsprot_main_decrypter = custom_target(
         '-p',
         'DSProt_',
         '-f',
-        'DetectFlashcart',
-        'DetectNotFlashcart',
-        'DetectEmulator',
-        'DetectNotEmulator',
-        'DetectDummy',
-        'DetectNotDummy',
+        dsprot_main_decrypter_functions,
     ],
 )
 
@@ -185,12 +253,7 @@ dsprot_main_decrypter_decoder = custom_target(
         '-g',
         'Garbage',
         '-f',
-        'DSProt_DetectFlashcart',
-        'DSProt_DetectNotFlashcart',
-        'DSProt_DetectEmulator',
-        'DSProt_DetectNotEmulator',
-        'DSProt_DetectDummy',
-        'DSProt_DetectNotDummy',
+        dsprot_main_decrypter_decoder_functions,
     ],
 )
 
@@ -274,10 +337,7 @@ integrity_decrypter = custom_target(
         '-k',
         key_integrity,
         '-f',
-        'Integrity_MACOwner_IsBad',
-        'Integrity_MACOwner_IsGood',
-        'Integrity_ROMTest_IsBad',
-        'Integrity_ROMTest_IsGood',
+        integrity_decrypter_functions,
     ],
 )
 
@@ -319,10 +379,7 @@ integrity_decrypter_decoder = custom_target(
         '-o',
         '@OUTPUT@',
         '-f',
-        'RunEncrypted_Integrity_MACOwner_IsBad',
-        'RunEncrypted_Integrity_MACOwner_IsGood',
-        'RunEncrypted_Integrity_ROMTest_IsBad',
-        'RunEncrypted_Integrity_ROMTest_IsGood',
+        integrity_decrypter_decoder_functions,
     ],
 )
 
@@ -384,8 +441,7 @@ encryptor_decoder = custom_target(
         '-o',
         '@OUTPUT@',
         '-f',
-        'Encryptor_EncryptFunction',
-        'Encryptor_DecryptFunction',
+        encryptor_decoder_functions,
     ],
 )
 
@@ -449,8 +505,7 @@ mac_owner_decrypter = custom_target(
         '-k',
         key_core_tests,
         '-f',
-        'MACOwner_IsBad',
-        'MACOwner_IsGood',
+        mac_owner_decrypter_functions,
     ],
 )
 
@@ -525,8 +580,7 @@ rom_util_decrypter = custom_target(
         '-k',
         key_core_tests,
         '-f',
-        'ROMUtil_Read',
-        'ROMUtil_CRC32',
+        rom_util_decrypter_functions,
     ],
 )
 
@@ -601,8 +655,7 @@ rom_test_decrypter = custom_target(
         '-k',
         key_core_tests,
         '-f',
-        'ROMTest_IsBad',
-        'ROMTest_IsGood',
+        rom_test_functions,
     ],
 )
 
@@ -652,12 +705,7 @@ coretests_decrypter_decoder = custom_target(
         '-o',
         '@OUTPUT@',
         '-f',
-        'RunEncrypted_ROMTest_IsBad',
-        'RunEncrypted_ROMTest_IsGood',
-        'RunEncrypted_MACOwner_IsBad',
-        'RunEncrypted_MACOwner_IsGood',
-        'RunEncrypted_ROMUtil_Read',
-        'RunEncrypted_ROMUtil_CRC32',
+        coretests_decrypter_decoder_functions,
     ],
 )
 
@@ -719,13 +767,7 @@ rc4_decoder = custom_target(
         '-o',
         '@OUTPUT@',
         '-f',
-        'RC4_Init',
-        'RC4_Byte',
-        'RC4_InitSBox',
-        'RC4_EncryptInstructions',
-        'RC4_DecryptInstructions',
-        'RC4_InitAndEncryptInstructions',
-        'RC4_InitAndDecryptInstructions',
+        rc4_decoder_functions,
     ],
 )
 
