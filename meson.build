@@ -15,8 +15,13 @@ subdir('tools')
 ############################################################
 ###                         COMPILERS                    ###
 ############################################################
-mwccarm = meson.get_compiler('c', native: false).cmd_array()
-mwasmarm = meson.get_compiler('nasm', native: false).cmd_array()
+mwccarm = find_program('c', native: false)
+mwasmarm = find_program('nasm', native: false)
+
+############################################################
+###                         PROGRAMS                     ###
+############################################################
+cp = find_program('cp')
 
 ############################################################
 ###                    INCLUDE PATHS                     ###
@@ -163,15 +168,14 @@ rc4_decoder_functions = [
 ]
 
 ############################################################
-###                       DSPROT MAIN                    ###
+###                      .c -> o                         ###
 ############################################################
-dsprot_main = custom_target(
-    'dsprot_main',
-    output: 'dsprot_main.o',
+
+mwccarm_gen = generator(
+    mwccarm,
+    output: '@BASENAME@.o',
     depfile: '@BASENAME@.d',
-    input: 'src/dsprot_main.c',
-    command: [
-        mwccarm,
+    arguments: [
         c_args,
         '-i',
         include_dir,
@@ -182,16 +186,43 @@ dsprot_main = custom_target(
     ],
 )
 
-dsprot_main_encrypted = custom_target(
-    'dsprot_main_encrypted',
-    input: dsprot_main,
-    output: 'dsprot_main_encrypted.o',
-    command: [
-        'cp',
+############################################################
+###                      .s -> o                         ###
+############################################################
+
+mwasmarm_gen = generator(
+    mwasmarm,
+    output: '@BASENAME@.o',
+    depfile: '@BASENAME@.d',
+    arguments: [
+        asm_args,
+        '-i',
+        include_dir,
+        '@INPUT@',
+        '-o',
+        '@OUTPUT@',
+    ],
+)
+
+
+############################################################
+###                      COPY FOR ENCRYPT/ENCODING       ###
+############################################################
+copy_enc_gen = generator(
+    cp,
+    output: '@BASENAME@_enc.o',
+    arguments: [
         '@INPUT@',
         '@OUTPUT@',
     ],
 )
+
+############################################################
+###                       DSPROT MAIN                    ###
+############################################################
+dsprot_main = mwccarm_gen.process('src/dsprot_main.c')
+dsprot_main_encrypted = copy_enc_gen.process(dsprot_main)
+
 
 dsprot_main_decrypter = custom_target(
     'dsprot_main_decrypter',
@@ -213,31 +244,9 @@ dsprot_main_decrypter = custom_target(
     ],
 )
 
-dsprot_main_decrypter_obj = custom_target(
-    'dsprot_main_decrypter_obj',
-    output: 'dsprot_main_decrypter.o',
-    input: dsprot_main_decrypter,
-    command: [
-        mwasmarm,
-        asm_args,
-        '-i',
-        include_dir,
-        '@INPUT@',
-        '-o',
-        '@OUTPUT@',
-    ],
-)
+dsprot_main_decrypter_obj = mwasmarm_gen.process(dsprot_main_decrypter)
 
-dsprot_main_decrypter_encoded = custom_target(
-    'dsprot_main_decrypter_encoded',
-    input: dsprot_main_decrypter_obj,
-    output: 'dsprot_main_decrypter_encoded.o',
-    command: [
-        'cp',
-        '@INPUT@',
-        '@OUTPUT@',
-    ],
-)
+dsprot_main_decrypter_encoded = copy_enc_gen.process(dsprot_main_decrypter_obj)
 
 dsprot_main_decrypter_decoder = custom_target(
     'ds_prot_main_decroded',
@@ -257,71 +266,20 @@ dsprot_main_decrypter_decoder = custom_target(
     ],
 )
 
-dsprot_main_decrypter_decoder_obj = custom_target(
-    'dsprot_main_decrypter_decoder_obj',
-    output: 'dsprot_main_decrypter_decoder.o',
-    input: dsprot_main_decrypter_decoder,
-    command: [
-        mwasmarm,
-        asm_args,
-        '-i',
-        include_dir,
-        '@INPUT@',
-        '-o',
-        '@OUTPUT@',
-    ],
+dsprot_main_decrypter_decoder_obj = mwasmarm_gen.process(
+    dsprot_main_decrypter_decoder,
 )
 
 ############################################################
 ###                       EXTRA                          ###
 ############################################################
-extra = custom_target(
-    'extra',
-    output: 'extra.o',
-    depfile: '@BASENAME@.d',
-    input: 'src/extra.c',
-    command: [
-        mwccarm,
-        c_args,
-        '-i',
-        include_dir,
-        dep_args,
-        '@INPUT@',
-        '-o',
-        '@OUTPUT@',
-    ],
-)
+extra = mwccarm_gen.process('src/extra.c')
 
 ############################################################
 ###                       INTEGRITY                      ###
 ############################################################
-integrity = custom_target(
-    'integrity',
-    output: 'integrity.o',
-    depfile: '@BASENAME@.d',
-    input: 'src/integrity.c',
-    command: [
-        mwccarm,
-        c_args,
-        '-i',
-        include_dir,
-        dep_args,
-        '@INPUT@',
-        '-o',
-        '@OUTPUT@',
-    ],
-)
-
-integrity_encrypted = custom_target(
-    'integrity_encrypted',
-    input: integrity,
-    output: 'integrity_encrypted.o',
-    command: [
-        'cp',
-        '@INPUT@',
-        '@OUTPUT@',
-    ],
-)
+integrity = mwccarm_gen.process('src/integrity.c')
+integrity_encrypted = copy_enc_gen.process(integrity)
 
 integrity_decrypter = custom_target(
     'integrity_decrypter',
@@ -341,31 +299,9 @@ integrity_decrypter = custom_target(
     ],
 )
 
-integrity_decrypter_obj = custom_target(
-    'integrity_decrypter_obj',
-    output: 'integrity_decrypter.o',
-    input: integrity_decrypter,
-    command: [
-        mwasmarm,
-        asm_args,
-        '-i',
-        include_dir,
-        '@INPUT@',
-        '-o',
-        '@OUTPUT@',
-    ],
-)
+integrity_decrypter_obj = mwasmarm_gen.process(integrity_decrypter)
 
-integrity_decrypter_encoded = custom_target(
-    'integrity_decrypter_encoded',
-    input: integrity_decrypter_obj,
-    output: 'integrity_decrypter_encoded.o',
-    command: [
-        'cp',
-        '@INPUT@',
-        '@OUTPUT@',
-    ],
-)
+integrity_decrypter_encoded = copy_enc_gen.process(integrity_decrypter_obj)
 
 integrity_decrypter_decoder = custom_target(
     'integrity_decrypter_decoder',
@@ -383,51 +319,16 @@ integrity_decrypter_decoder = custom_target(
     ],
 )
 
-integrity_decrypter_decoder_obj = custom_target(
-    'integrity_decrypter_decoder_obj',
-    output: 'integrity_decrypter_decoder.o',
-    input: integrity_decrypter_decoder,
-    command: [
-        mwasmarm,
-        asm_args,
-        '-i',
-        include_dir,
-        '@INPUT@',
-        '-o',
-        '@OUTPUT@',
-    ],
+integrity_decrypter_decoder_obj = mwasmarm_gen.process(
+    integrity_decrypter_decoder,
 )
 
 ############################################################
 ###                       ENCRYPTOR                      ###
 ############################################################
-encryptor = custom_target(
-    'encryptor',
-    output: 'encryptor.o',
-    depfile: '@BASENAME@.d',
-    input: 'src/encryptor.c',
-    command: [
-        mwccarm,
-        c_args,
-        '-i',
-        include_dir,
-        dep_args,
-        '@INPUT@',
-        '-o',
-        '@OUTPUT@',
-    ],
-)
+encryptor = mwccarm_gen.process('src/encryptor.c')
+encryptor_encoded = copy_enc_gen.process(encryptor)
 
-encryptor_encoded = custom_target(
-    'encryptor_encoded',
-    input: encryptor,
-    output: 'encryptor_encoded.o',
-    command: [
-        'cp',
-        '@INPUT@',
-        '@OUTPUT@',
-    ],
-)
 
 encryptor_decoder = custom_target(
     'encryptor_decoder',
@@ -445,51 +346,14 @@ encryptor_decoder = custom_target(
     ],
 )
 
-encryptor_decoder_obj = custom_target(
-    'encryptor_decoder_obj',
-    output: 'encryptor_decoder.o',
-    input: encryptor_decoder,
-    command: [
-        mwasmarm,
-        asm_args,
-        '-i',
-        include_dir,
-        '@INPUT@',
-        '-o',
-        '@OUTPUT@',
-    ],
-)
+encryptor_decoder_obj = mwasmarm_gen.process(encryptor_decoder)
 
 ############################################################
 ###                       MAC OWNER                      ###
 ############################################################
-mac_owner = custom_target(
-    'mac_owner',
-    output: 'mac_owner.o',
-    depfile: '@BASENAME@.d',
-    input: 'src/mac_owner.c',
-    command: [
-        mwccarm,
-        c_args,
-        '-i',
-        include_dir,
-        dep_args,
-        '@INPUT@',
-        '-o',
-        '@OUTPUT@',
-    ],
-)
+mac_owner = mwccarm_gen.process('src/mac_owner.c')
+mac_owner_encrypted = copy_enc_gen.process(mac_owner)
 
-mac_owner_encrypted = custom_target(
-    'mac_owner_encrypted',
-    input: mac_owner,
-    output: 'mac_owner_encrypted.o',
-    command: [
-        'cp',
-        '@INPUT@',
-        '@OUTPUT@',
-    ],
-)
 
 mac_owner_decrypter = custom_target(
     'mac_owner_decrypter',
@@ -509,62 +373,15 @@ mac_owner_decrypter = custom_target(
     ],
 )
 
-mac_owner_decrypter_obj = custom_target(
-    'mac_owner_decrypter_obj',
-    output: 'mac_owner_decrypter.o',
-    input: mac_owner_decrypter,
-    command: [
-        mwasmarm,
-        asm_args,
-        '-i',
-        include_dir,
-        '@INPUT@',
-        '-o',
-        '@OUTPUT@',
-    ],
-)
-
-mac_owner_decrypter_encoded = custom_target(
-    'mac_owner_decrypter_encoded',
-    input: mac_owner_decrypter_obj,
-    output: 'mac_owner_decrypter_encoded.o',
-    command: [
-        'cp',
-        '@INPUT@',
-        '@OUTPUT@',
-    ],
-)
+mac_owner_decrypter_obj = mwasmarm_gen.process(mac_owner_decrypter)
+mac_owner_decrypter_encoded = copy_enc_gen.process(mac_owner_decrypter_obj)
 
 ############################################################
 ###                       ROM UTIL                       ###
 ############################################################
-rom_util = custom_target(
-    'rom_util',
-    output: 'rom_util.o',
-    depfile: '@BASENAME@.d',
-    input: 'src/rom_util.c',
-    command: [
-        mwccarm,
-        c_args,
-        '-i',
-        include_dir,
-        dep_args,
-        '@INPUT@',
-        '-o',
-        '@OUTPUT@',
-    ],
-)
+rom_util = mwccarm_gen.process('src/rom_util.c')
+rom_util_encrypted = copy_enc_gen.process(rom_util)
 
-rom_util_encrypted = custom_target(
-    'rom_util_encrypted',
-    input: rom_util,
-    output: 'rom_util_encrypted.o',
-    command: [
-        'cp',
-        '@INPUT@',
-        '@OUTPUT@',
-    ],
-)
 
 rom_util_decrypter = custom_target(
     'rom_util_decrypter',
@@ -583,63 +400,14 @@ rom_util_decrypter = custom_target(
         rom_util_decrypter_functions,
     ],
 )
-
-rom_util_decrypter_obj = custom_target(
-    'rom_util_decrypter_obj',
-    output: 'rom_util_decrypter.o',
-    input: rom_util_decrypter,
-    command: [
-        mwasmarm,
-        asm_args,
-        '-i',
-        include_dir,
-        '@INPUT@',
-        '-o',
-        '@OUTPUT@',
-    ],
-)
-
-rom_util_decrypter_encoded = custom_target(
-    'rom_util_decrypter_encoded',
-    input: rom_util_decrypter_obj,
-    output: 'rom_util_decrypter_encoded.o',
-    command: [
-        'cp',
-        '@INPUT@',
-        '@OUTPUT@',
-    ],
-)
+rom_util_decrypter_obj = mwasmarm_gen.process(rom_util_decrypter)
+rom_util_decrypter_encoded = copy_enc_gen.process(rom_util_decrypter_obj)
 
 ############################################################
 ###                       ROM TEST                       ###
 ############################################################
-rom_test = custom_target(
-    'rom_test',
-    output: 'rom_test.o',
-    depfile: '@BASENAME@.d',
-    input: 'src/rom_test.c',
-    command: [
-        mwccarm,
-        c_args,
-        '-i',
-        include_dir,
-        dep_args,
-        '@INPUT@',
-        '-o',
-        '@OUTPUT@',
-    ],
-)
-
-rom_test_encrypted = custom_target(
-    'rom_test_obj_copy',
-    input: rom_test,
-    output: 'rom_test_encrypted.o',
-    command: [
-        'cp',
-        '@INPUT@',
-        '@OUTPUT@',
-    ],
-)
+rom_test = mwccarm_gen.process('src/rom_test.c')
+rom_test_encrypted = copy_enc_gen.process(rom_test)
 
 rom_test_decrypter = custom_target(
     'rom_test_decrypter',
@@ -659,32 +427,8 @@ rom_test_decrypter = custom_target(
     ],
 )
 
-rom_test_decrypter_obj = custom_target(
-    'rom_test_decrypter_obj',
-    output: 'rom_test_decrypter.o',
-    input: rom_test_decrypter,
-    command: [
-        mwasmarm,
-        asm_args,
-        '-i',
-        include_dir,
-        '@INPUT@',
-        '-o',
-        '@OUTPUT@',
-    ],
-)
-
-rom_test_decrypter_encoded = custom_target(
-    'rom_test_decrypter_encoded',
-    input: rom_test_decrypter_obj,
-    output: 'rom_test_decrypter_encoded.o',
-    command: [
-        'cp',
-        '@INPUT@',
-        '@OUTPUT@',
-    ],
-)
-
+rom_test_decrypter_obj = mwasmarm_gen.process(rom_test_decrypter)
+rom_test_decrypter_encoded = copy_enc_gen.process(rom_test_decrypter_obj)
 
 ############################################################
 ###                       CORETESTS                      ###
@@ -709,51 +453,15 @@ coretests_decrypter_decoder = custom_target(
     ],
 )
 
-coretests_decrypter_decoder_obj = custom_target(
-    'coretests_d_decrypter_decoder_obj',
-    output: 'coretests_decrypter_decoder.o',
-    input: coretests_decrypter_decoder,
-    command: [
-        mwasmarm,
-        asm_args,
-        '-i',
-        include_dir,
-        '@INPUT@',
-        '-o',
-        '@OUTPUT@',
-    ],
+coretests_decrypter_decoder_obj = mwasmarm_gen.process(
+    coretests_decrypter_decoder,
 )
 
 ############################################################
 ###                       RC4                            ###
 ############################################################
-rc4 = custom_target(
-    'rc4',
-    output: 'rc4.o',
-    depfile: '@BASENAME@.d',
-    input: 'src/rc4.c',
-    command: [
-        mwccarm,
-        c_args,
-        '-i',
-        include_dir,
-        dep_args,
-        '@INPUT@',
-        '-o',
-        '@OUTPUT@',
-    ],
-)
-
-rc4_encoded = custom_target(
-    'rc4_encoded',
-    input: rc4,
-    output: 'rc4_encoded.o',
-    command: [
-        'cp',
-        '@INPUT@',
-        '@OUTPUT@',
-    ],
-)
+rc4 = mwccarm_gen.process('src/rc4.c')
+rc4_encoded = copy_enc_gen.process(rc4)
 
 rc4_decoder = custom_target(
     'rc4_decoder',
@@ -771,20 +479,7 @@ rc4_decoder = custom_target(
     ],
 )
 
-rc4_decoder_obj = custom_target(
-    'rc4_decoder_obj',
-    output: 'rc4_decoder.o',
-    input: rc4_decoder,
-    command: [
-        mwasmarm,
-        asm_args,
-        '-i',
-        include_dir,
-        '@INPUT@',
-        '-o',
-        '@OUTPUT@',
-    ],
-)
+rc4_decoder_obj = mwasmarm_gen.process(rc4_decoder)
 
 ############################################################
 ###                       LIBRARY                        ###
