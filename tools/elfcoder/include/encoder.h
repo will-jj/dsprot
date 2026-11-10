@@ -29,6 +29,8 @@ typedef struct {
 	char*     garbage;
 	uint32_t  key;
 	int       verbose;
+	int       create_copy;
+	char**    input_copies;
 } EncodingTask;
 
 void Encode_Instruction(Instruction* ins, RC4_Ctx* rc4);

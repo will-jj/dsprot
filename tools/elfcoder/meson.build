@@ -1,6 +1,7 @@
 elfcoder_sources = [
     'src/argparse.c',
     'src/asmwriter.c',
+    'src/copyfile.c',
     'src/elfread.c',
     'src/encoder.c',
     'src/instruction.c',

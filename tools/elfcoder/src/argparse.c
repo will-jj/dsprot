@@ -75,6 +75,7 @@ static int argCompare(char* arg, char short_letter, char* long_str) {
 
 enum {
 	AWAIT_INPUT_FILE,
+	AWAIT_INPUT_FILE_COPY,
 	AWAIT_SYMBOL,
 	AWAIT_NONE
 };
@@ -90,7 +91,8 @@ int ArgParse_CreateTask(EncodingTask* task, char** argv) {
 	task->garbage         = NULL;
 	task->key             = 0;
 	task->verbose         = 0;
-	
+	task->create_copy     = 0;
+	task->input_copies    = NULL;
 	int arg_idx = 0;
 	
 	// No arguments?
@@ -116,7 +118,9 @@ int ArgParse_CreateTask(EncodingTask* task, char** argv) {
 	int symbol_idx = 0;
 	
 	task->inputs = calloc(max_files, sizeof(FILE*));
+	task->input_copies = calloc(max_files, sizeof(FILE*));
 	int file_idx = 0;
+	int file_copy_idx = 0;
 	
 	int await_state = AWAIT_NONE;
 	
@@ -236,6 +240,15 @@ int ArgParse_CreateTask(EncodingTask* task, char** argv) {
 			} else if (argCompare(curr_arg, 'v', "--verbose")) {
 				task->verbose = 1;
 			
+			} else if (argCompare(curr_arg, 'c', "--create-copy")) {
+				if (next_arg == NULL || next_arg[0] == '-') {
+					printf("Error: %s but no files provided\n", curr_arg);
+					return 1;
+				}
+				task->create_copy = 1;
+
+				await_state = AWAIT_INPUT_FILE_COPY;
+			
 			} else {
 				printf("Unknown argument: %s\n\n", curr_arg);
 				printUsage(self_name);
@@ -281,6 +294,18 @@ int ArgParse_CreateTask(EncodingTask* task, char** argv) {
 					file_idx++;
 					task->inputs[file_idx] = NULL;
 					break;
+
+				case AWAIT_INPUT_FILE_COPY:
+					// Maintain null terminator
+					if ((file_copy_idx + 1) == max_files) {
+						file_copy_idx += 8;
+						task->input_copies = realloc(task->input_copies, max_files * sizeof(char*));
+					}
+
+					task->input_copies[file_copy_idx] = curr_arg;
+					file_copy_idx++;
+					task->input_copies[file_copy_idx] = NULL;
+					break;
 				
 				default:
 				case AWAIT_NONE:
@@ -294,6 +319,11 @@ int ArgParse_CreateTask(EncodingTask* task, char** argv) {
 	
 	if (file_idx == 0) {
 		printf("Error: no input file(s) provided (-i)\n");
+		return 1;
+	}
+
+	if (task->create_copy && (file_idx !=  file_copy_idx)) {
+		printf("Error: no of input file copy paths does not match no of input files given)\n");
 		return 1;
 	}
 	
@@ -331,5 +361,6 @@ void ArgParse_DestroyTask(EncodingTask* task) {
 	if (task != NULL) {
 		free(task->symbols);
 		free(task->inputs);
+		free(task->input_copies);
 	}
 }

@@ -8,6 +8,7 @@
 
 #include "encoder.h"
 #include "asmwriter.h"
+#include "copyfile.h"
 
 typedef struct {
 	FILE*       fhandle;
@@ -79,7 +80,6 @@ static int getRelocationHeaderByTarget(ElfFile* elf, int target_idx, Elf32_Shdr*
 
 static int ElfFile_Init(ElfFile* elf, char* fname) {
 	elf->fname = fname;
-	
 	// Open file
 	elf->fhandle = fopen(elf->fname, "rb+");
 	if (elf->fhandle == NULL) {
@@ -364,6 +364,10 @@ int Elf_EncodeSymbols(EncodingTask* task) {
 	
 	ElfFile* elfs = calloc(num_inputs + 1, sizeof(ElfFile));
 	for (int elf_idx = 0; elf_idx < num_inputs; elf_idx++) {
+		if(task->create_copy) {
+			OSCopyFile(task->inputs[elf_idx], task->input_copies[elf_idx]);
+			task->inputs[elf_idx] = task->input_copies[elf_idx];
+		}
 		ret_code += ElfFile_Init(&elfs[elf_idx], task->inputs[elf_idx]);
 		
 #if 0
