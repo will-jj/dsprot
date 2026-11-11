@@ -4,7 +4,7 @@
 #include <errno.h>
 
 #include "encoder.h"
-
+#include "copyfile.h"
 
 static int parseKey(const char* key_text, uint32_t* out_key) {
 	char* outptr;
@@ -52,16 +52,18 @@ static void printDescription(void) {
 
 static void printUsage(const char* self_name) {
 	printf(
-		"Usage: %s <arguments>                                                           \n"
-		"  -i, --input [file1, [file2, [ ... ]]]      List of input files to process.    \n"
-		"  -o, --output [outfile]                     Output file to create, if encoding.\n"
-		"  -e, --encode                               Encode the input files.            \n"
-		"  -d, --decode                               Decode the input files.            \n"
-		"  -f, --functions [func1, [func2, [ ... ]]]  List of functions to encode/decode.\n"
-		"  -k, --key [key]                            Optional encryption key.           \n"
-		"  -p, --prefix [prefix = RunEncrypted_]      Prefix for decryption wrappers.    \n"
-		"  -g  --garbage [symbol]                     Optional added garbage reference.  \n"
-		"  -v, --verbose                              Print encoding progress.           \n",
+		"Usage: %s <arguments>                                                               \n"
+		"  -i, --input [file1, [file2, [ ... ]]]                  List of input files to process.    \n"
+		"  -o, --output [outfile]                                 Output file to create, if encoding.\n"
+		"  -e, --encode                                           Encode the input files.            \n"
+		"  -d, --decode                                           Decode the input files.            \n"
+		"  -f, --functions [func1, [func2, [ ... ]]]              List of functions to encode/decode.\n"
+		"  -k, --key [key]                                        Optional encryption key.           \n"
+		"  -p, --prefix [prefix = RunEncrypted_]                  Prefix for decryption wrappers.    \n"
+		"  -g  --garbage [symbol]                                 Optional added garbage reference.  \n"
+		"  -v, --verbose                                          Print encoding progress.           \n"
+		"  -c, --create--output-copy [[file1, [file2, [ ... ]]]   List of output files for enc/dec.  \n"
+		"  -s, --create-output-copy-with-suffix [suffix]          Optional suffix for enc/dec files  \n",
 		self_name
 	);
 }
@@ -76,7 +78,8 @@ static int argCompare(char* arg, char short_letter, char* long_str) {
 enum {
 	AWAIT_INPUT_FILE,
 	AWAIT_SYMBOL,
-	AWAIT_NONE
+	AWAIT_NONE,
+	AWAIT_OUTPUT_FILE
 };
 
 int ArgParse_CreateTask(EncodingTask* task, char** argv) {
@@ -90,6 +93,9 @@ int ArgParse_CreateTask(EncodingTask* task, char** argv) {
 	task->garbage         = NULL;
 	task->key             = 0;
 	task->verbose         = 0;
+	task->output_files	  = NULL;
+	task->output_suffix   = NULL;
+	task->output_mode     = OUTPUT_INPLACE;
 	
 	int arg_idx = 0;
 	
@@ -110,13 +116,16 @@ int ArgParse_CreateTask(EncodingTask* task, char** argv) {
 	
 	
 	int max_files = 16;
+	int max_output_files = 16;
 	int max_symbols = 64;
 	
 	task->symbols = calloc(max_symbols, sizeof(char*));
 	int symbol_idx = 0;
 	
 	task->inputs = calloc(max_files, sizeof(FILE*));
+	task->output_files = calloc(max_output_files, sizeof(FILE*));
 	int file_idx = 0;
+	int file_output_idx = 0;
 	
 	int await_state = AWAIT_NONE;
 	
@@ -235,6 +244,33 @@ int ArgParse_CreateTask(EncodingTask* task, char** argv) {
 			
 			} else if (argCompare(curr_arg, 'v', "--verbose")) {
 				task->verbose = 1;
+
+			} else if (argCompare(curr_arg, 'c', "--create--output-copy")) {
+				if (task->output_mode != OUTPUT_INPLACE) {
+					printf("Error: multiple output modes provided\n");
+					return 1;
+				}
+				if (next_arg == NULL || next_arg[0] == '-') {
+					printf("Error: %s but no files provided\n", curr_arg);
+					return 1;
+				}
+				task->output_mode = OUTPUT_SPECIFIED;
+				await_state = AWAIT_OUTPUT_FILE;
+			
+			} else if (argCompare(curr_arg, 's', "--create-output-copy-with-suffix")) {
+				if (task->output_mode != OUTPUT_INPLACE) {
+					printf("Error: multiple output modes provided\n");
+					return 1;
+				}
+				if (next_arg == NULL || next_arg[0] == '-') {
+					printf("Error: %s but no suffix string provided\n", curr_arg);
+					return 1;
+				}
+
+				task->output_suffix = next_arg;
+				task->output_mode = OUTPUT_WITH_SUFFIX;
+
+				arg_idx++;
 			
 			} else {
 				printf("Unknown argument: %s\n\n", curr_arg);
@@ -281,6 +317,18 @@ int ArgParse_CreateTask(EncodingTask* task, char** argv) {
 					file_idx++;
 					task->inputs[file_idx] = NULL;
 					break;
+
+				case AWAIT_OUTPUT_FILE:
+					// Maintain null terminator
+					if ((max_output_files + 1) == max_files) {
+						max_output_files += 8;
+						task->output_files = realloc(task->output_files, max_output_files * sizeof(char*));
+					}
+							
+					task->output_files[file_output_idx] = curr_arg;
+					file_output_idx++;
+					task->output_files[file_output_idx] = NULL;
+					break;
 				
 				default:
 				case AWAIT_NONE:
@@ -307,6 +355,10 @@ int ArgParse_CreateTask(EncodingTask* task, char** argv) {
 		return 1;
 	}
 	
+	if (task->output_mode == OUTPUT_SPECIFIED && file_idx != file_output_idx) {
+		printf("Error: number of input file(s) does not match no of output enc/dec files\n");
+		return 1;
+	}
 	
 	if (task->output_fname != NULL && task->encoding_type == ENC_DECODE) {
 		printf("Warning: output file name provided, but no output will be generated for decoding\n");
@@ -322,6 +374,40 @@ int ArgParse_CreateTask(EncodingTask* task, char** argv) {
 		printf("Warning: garbage reference provided, but will not be used for decoding\n");
 		task->garbage = NULL;
 	}
+
+	// Map task inputs to outputs after copying
+	if (task->output_mode != OUTPUT_INPLACE){
+		int idx = 0;
+		int ret = 0;
+		while (task->inputs[idx] != NULL) {
+			if (task->output_mode == OUTPUT_WITH_SUFFIX) {
+				int buff_size = strlen(task->inputs[idx]) + strlen(task->output_suffix) + 1;
+				char *f_name = malloc(sizeof(int[buff_size]));
+				snprintf(f_name, buff_size, "%s%s", task->inputs[idx], task->output_suffix);
+				
+				ret = fopen_by_copy(task->inputs[idx], f_name);
+
+				if (ret != 0) {
+					printf("Error: failed to create copy %s to %s\n", task->inputs[idx], f_name);
+					return 1;
+				}
+
+				task->inputs[idx] = f_name;
+			}
+			else {
+				ret = fopen_by_copy(task->inputs[idx], task->output_files[idx]);
+
+				if (ret != 0) {
+					printf("Error: failed to create copy %s to %s\n", task->inputs[idx], task->output_files[idx]);
+					return 1;
+				}
+
+				task->inputs[idx] = task->output_files[idx];
+			}
+
+			idx++;
+		}
+	}
 	
 	return 0;
 }
@@ -331,5 +417,6 @@ void ArgParse_DestroyTask(EncodingTask* task) {
 	if (task != NULL) {
 		free(task->symbols);
 		free(task->inputs);
+		free(task->output_files);
 	}
 }

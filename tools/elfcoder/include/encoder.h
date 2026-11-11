@@ -19,6 +19,12 @@ enum {
 	MODE_INVALID
 };
 
+enum {
+	OUTPUT_INPLACE,
+	OUTPUT_SPECIFIED,
+	OUTPUT_WITH_SUFFIX
+};
+
 typedef struct {
 	char**    inputs;
 	char*     output_fname;
@@ -29,6 +35,9 @@ typedef struct {
 	char*     garbage;
 	uint32_t  key;
 	int       verbose;
+	char**    output_files;
+	char*     output_suffix;
+	int       output_mode;
 } EncodingTask;
 
 void Encode_Instruction(Instruction* ins, RC4_Ctx* rc4);
